@@ -1,14 +1,15 @@
 from fastapi import FastAPI
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Optional
+from bcrypt import hashpw, gensalt, checkpw
 import sqlite3
 from sqlite3 import Error
 import os
 import secrets
 from typing import List
 from entidades import Usuario
-import bcrypt 
-import jwt
-
+from jwt import encode, decode
+from datetime import datetime
 
 app = FastAPI(
     docs_url="/"
@@ -17,8 +18,35 @@ app = FastAPI(
 c=os.getcwd()
 ruta=c+'/datos.db'
 
-''' User'''
-@app.post("/API/CreateUser", tags=["USER"])
+jwtSecreto = "cdc556c0-bc6a-41bb-90e9-dd48f6082234" 
+
+#-----Funciones Utilitarias
+def encodePasword(password: str):
+    #codificando contraseña
+    return hashpw(password.encode("utf-8"), gensalt())
+
+def checkPassword(password: str, hashPassword: str):
+    #Valida que la contraseña de la db corresponda con la introducida por el usuario
+    return checkpw(password.encode("utf-8"), hashPassword.encode("utf-8"))
+
+def decodeToken(token: str):
+    #Desencripta el token
+    return decode(token, jwtSecreto)
+
+def encodeToken(user: Usuario):
+    #Crea el token
+    exp = datetime.now().timestamp() + (60 * 60 * 1000)
+    return encode({"exp": exp, "usuario": user}, jwtSecreto)
+#--------------------------
+
+#class Token(BaseModel):
+#    access_token: str
+#    token_type: str = "bearer"
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
+
+#''' User'''
+@app.post("/api/createUser", tags=["USER"])
 def CreateUser(user:Usuario):
     #try:    
     #    conexion = sqlite3.connect(ruta)
@@ -35,7 +63,7 @@ def CreateUser(user:Usuario):
     nombre=user.Nombre
     email=user.Email
     #clave=user.Clave
-    clave = bcrypt.hashpw(user.Clave.encode("utf-8"),bcrypt.gensalt())
+    clave = encodePasword( user.Clave )
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
@@ -53,7 +81,7 @@ def CreateUser(user:Usuario):
 
     return {"Registrado"}
 
-@app.post("/API/Login",tags=["USER"] )
+@app.post("/api/login",tags=["USER"] )
 def Login(email:str,clave:str):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
@@ -67,7 +95,7 @@ def Login(email:str,clave:str):
     return{'Token',token,'Guardado'}
  
 
-@app.get("/API/Info/{Id}", tags=["USER"])
+@app.get("/api/info/{Id}", tags=["USER"])
 def Info(Id:int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
@@ -83,7 +111,7 @@ def Info(Id:int):
       
 
 '''Paciente'''
-@app.get("/API/Patients", tags=["Patient"])
+@app.get("/api/patients", tags=["Patient"])
 def Patients():
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
@@ -96,7 +124,7 @@ def Patients():
     
     return(informacion)
 
-@app.post("/API/AddPatients", tags=["Patient"])
+@app.post("/api/patients", tags=["Patient"])
 async def AddPatients(MedicoId:int,Cedula:str,Foto:str,Nombre:str,Apellido:str,TipoSangre:str,Email:str,Sexo:str,FechaNacimiento:str,AlergiasId:int,SignoZodiacal:str):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
@@ -110,7 +138,7 @@ async def AddPatients(MedicoId:int,Cedula:str,Foto:str,Nombre:str,Apellido:str,T
 
 
 
-@app.get("/API/FindPatient/{Id}", tags=["Patient"])
+@app.get("/api/patients/{Id}", tags=["Patient"])
 def FindPatient(Id:int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
@@ -123,7 +151,7 @@ def FindPatient(Id:int):
     return(informacion)
 
 
-@app.post("/API/AddConsults", tags=["Consult"])
+@app.post("/api/consults", tags=["Consult"])
 def Consults(PacienteId:int, Fecha:str, Motivo:str, Seguro:str, MontoPagado:int, Diagnostico:str, Notas:str, Archivo:str):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
@@ -135,7 +163,7 @@ def Consults(PacienteId:int, Fecha:str, Motivo:str, Seguro:str, MontoPagado:int,
     return{'Listo'}
 
 
-@app.get("/API/FindConsults/{Id}", tags=["Consult"])
+@app.get("/api/consults/{Id}", tags=["Consult"])
 def FindConsult(Id:int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
