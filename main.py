@@ -10,7 +10,9 @@ import bcrypt
 import jwt
 
 
-app = FastAPI()
+app = FastAPI(
+    docs_url="/"
+)
 
 c=os.getcwd()
 ruta=c+'/datos.db'
