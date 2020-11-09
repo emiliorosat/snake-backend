@@ -7,7 +7,7 @@ from sqlite3 import Error
 import os
 import secrets
 from typing import List
-from entidades import Usuario
+from entidades import Usuario,Paciente,Consulta
 from jwt import encode, decode
 from datetime import datetime
 
@@ -45,97 +45,111 @@ def encodeToken(user: Usuario):
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
 
-#''' User'''
+#--------------------User-----------------------
 @app.post("/api/createUser", tags=["USER"])
 def CreateUser(user:Usuario):
-    #try:    
-    #    conexion = sqlite3.connect(ruta)
-    #    datos = conexion.cursor()
-    #    
-    #
-#
-    #    datos.execute(f"INSERT INTO Usuario(Id,Nombre,Email,Clave) VALUES (NULL,{user.Nombre},{user.Email},{user.#clave}")
-    #    conexion.commit()
-    #    return{f'Registro Exitoso'}
-    #except TypeError:
-    #    return{"Hubo un error"}
+    conexion = sqlite3.connect(ruta)
+    datos = conexion.cursor()
 
     nombre=user.Nombre
-    email=user.Email
-    #clave=user.Clave
-    clave = encodePasword( user.Clave )
-    conexion = sqlite3.connect(ruta)
-    datos = conexion.cursor()
-
-    Info = (nombre,email,clave)
-    sql = f'INSERT INTO Usuario(Id, Nombre, Email, Clave, Token) VALUES (NULL,?,?,?,NULL)'
-    datos.execute(sql,Info)
+    email=user.Email   
+    password = encodePasword(user.Clave)
+   
+    sql0 =F'SELECT Email FROM Usuario WHERE Email = "'+ email+'"'
+    datos.execute(sql0)
     conexion.commit()
-
-
-    conexion = sqlite3.connect(ruta)
-    datos = conexion.cursor()
-
+    informacion = datos.fetchall()
+    if informacion == []:
+        Info = (nombre,email,password)
+        sql = f'INSERT INTO Usuario(Id, Nombre, Email, Clave) VALUES (NULL,?,?,?)'
+        datos.execute(sql,Info)
+        conexion.commit()
+        return{'Welcome'}
+    else:
+        return{'Ya existe un correo con ese email'}
     
     
-
-    return {"Registrado"}
+  
+    
 
 @app.post("/api/login",tags=["USER"] )
-def Login(email:str,clave:str):
+def Login(user:Usuario):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
-    
-
-    token = secrets.token_hex(5)
-    sql =F'UPDATE Usuario SET Token="'+token+'" WHERE Email= "'+email+'" AND Clave ="'+clave+'"'
+    email = user.Email
+    password = user.Clave
+       
+    sql =F'SELECT Clave FROM Usuario WHERE Email = "'+ email+'"'
     datos.execute(sql)
     conexion.commit()
-    return{'Token',token,'Guardado'}
+    informacion = datos.fetchall()
+    for i in informacion:
+        passwordR = checkPassword(password,i[0].decode())
+        if passwordR == True:
+                         
+            return('Welcome')
+        else:
+            return('Contraseña Incorrecta')
+    
  
 
 @app.get("/api/info/{Id}", tags=["USER"])
 def Info(Id:int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
-
-    query =f'SELECT Id, MedicoId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente WHERE Id = {Id};'
+    
+    query =f'SELECT Id, Nombre, Email, Clave FROM `Usuario` WHERE Id = {Id}'
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
-    
+        
     return(informacion)
 
 
       
 
-'''Paciente'''
+#-------------------Paciente--------------
 @app.get("/api/patients", tags=["Patient"])
 def Patients():
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
-    datos.execute('SELECT Id, MedicoId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente')
+    datos.execute('SELECT Id, UsuarioId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente')
     conexion.commit()
     informacion = datos.fetchall()
-
-
-    
+   
     return(informacion)
 
 @app.post("/api/patients", tags=["Patient"])
-async def AddPatients(MedicoId:int,Cedula:str,Foto:str,Nombre:str,Apellido:str,TipoSangre:str,Email:str,Sexo:str,FechaNacimiento:str,AlergiasId:int,SignoZodiacal:str):
+def AddPatients(patient:Paciente):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
+    UsuarioId = patient.UsuarioId   
+    Cedula = patient.Cedula 
+    Foto = patient.Foto 
+    Nombre = patient.Nombre 
+    Apellido = patient.Apellido 
+    TipoSangre = patient.TipoSangre 
+    Email = patient.Email
+    Sexo = patient.Sexo 
+    FechaNacimiento = patient.FechaNacimiento 
+    AlergiasId = 2
+    SignoZodiacal = patient.SignoZodiacal
     
-    Info=(MedicoId,Cedula,Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal)
-    query = f'INSERT INTO Paciente(Id,MedicoId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal)VALUES(NULL,?,?,?,?,?,?,?,?,?,?,?)'
-    datos.execute(query,Info)
+    sql0 =F'SELECT Cedula FROM Paciente WHERE Cedula = "'+ Cedula+'"'
+    datos.execute(sql0)
     conexion.commit()
-    return{'Registro exitoso'}
-
+    informacion = datos.fetchall()
+    if informacion == []:
+        Info=(UsuarioId,Cedula,Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal)
+        query = f'INSERT INTO Paciente(UsuarioId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal)VALUES(?,?,?,?,?,?,?,?,?,?,?)'
+        datos.execute(query,Info)
+        conexion.commit()
+        return{'Paciente Agregado'}
+    else:
+        return{'Ya existe un paciente con esa cedula'}
 
 
 @app.get("/api/patients/{Id}", tags=["Patient"])
@@ -143,7 +157,7 @@ def FindPatient(Id:int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
-    query =f'SELECT Id, MedicoId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente WHERE Id = {Id};'
+    query =f'SELECT Id, UsuarioId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente WHERE Id = {Id};'
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
@@ -151,29 +165,43 @@ def FindPatient(Id:int):
     return(informacion)
 
 
+
+
+#----------------------Consults-----------------------
 @app.post("/api/consults", tags=["Consult"])
-def Consults(PacienteId:int, Fecha:str, Motivo:str, Seguro:str, MontoPagado:int, Diagnostico:str, Notas:str, Archivo:str):
+def Consults(consults:Consulta):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
+
+    PacienteId = consults.PacienteId
+    Fecha = consults.Fecha 
+    Motivo = consults.Motivo 
+    Seguro = consults.Seguro 
+    MontoPagado = consults.MontoPagado 
+    Diagnostico = consults.Diagnostico 
+    Notas = consults.Notas
+    Archivo = consults.Archivo
 
     Info = (PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo)
     query = f'INSERT INTO Consulta(PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo) VALUES (?,?,?,?,?,?,?,?);'
     datos.execute(query,Info)
     conexion.commit()
-    return{'Listo'}
+    return{'Consulta agregada'}
 
 
-@app.get("/api/consults/{Id}", tags=["Consult"])
-def FindConsult(Id:int):
+@app.get("/api/consults/{usuarioId}", tags=["Consult"])
+def FindConsult(usuarioId:int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
-    query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE PacienteId = {Id};'
+    query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE PacienteId = {usuarioId};'
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
     
     return(informacion)
+
+
 
 
 
