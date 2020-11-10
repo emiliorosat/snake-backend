@@ -164,6 +164,35 @@ def FindPatient(Id:int):
     
     return(informacion)
 
+@app.put("/api/patients/{idusuario}", tags=["Patient"])
+def ModifyPatient(patient:Paciente,idusuario):
+    conexion = sqlite3.connect(ruta)
+    datos = conexion.cursor()
+
+    idusuario0 = idusuario 
+
+    UsuarioId = patient.UsuarioId   
+    Cedula = patient.Cedula 
+    Foto = patient.Foto 
+    Nombre = patient.Nombre 
+    Apellido = patient.Apellido 
+    TipoSangre = patient.TipoSangre 
+    Email = patient.Email
+    Sexo = patient.Sexo 
+    FechaNacimiento = patient.FechaNacimiento 
+    AlergiasId = 2
+    SignoZodiacal = patient.SignoZodiacal
+
+    Info=(UsuarioId,Cedula,Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal,idusuario0)
+    query = f'UPDATE Paciente SET UsuarioId = ?, Cedula = ?, Foto = ?, Nombre = ?, Apellido = ?, TipoSangre = ?, Email = ?, Sexo = ?, FechaNacimiento = ?, AlergiasId = ?, SignoZodiacal = ? WHERE UsuarioId = ?'
+    datos.execute(query,Info)
+    conexion.commit()
+    return{'Paciente Modificado'}
+
+    
+
+
+
 
 
 
@@ -201,7 +230,7 @@ def FindConsult(usuarioid:int):
     
     return(informacion)
 
-@app.post("/api/consults/{idpaciente}", tags=["Consult"])
+@app.put("/api/consults/{idpaciente}", tags=["Consult"])
 def ModifyConsult(consults:Consulta,idpaciente:int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
@@ -218,21 +247,21 @@ def ModifyConsult(consults:Consulta,idpaciente:int):
     Archivo = consults.Archivo
 
    # Info = (MontoPagado)
-    Info = (PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo)
+    Info = (PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo,PacienteId0)
     #query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE PacienteId = {PacienteId0}'
     
     #query = f"UPDATE Consulta SET PacienteId={PacienteId}, Fecha = {Fecha}, Seguro={Seguro},MontoPagado={MontoPagado},Diagnostico={Diagnostico},Notas={Notas},Archivo={Archivo} WHERE PacienteId = {PacienteId0}"
     
     #query = f'UPDATE Consulta SET PacienteId= "'+PacienteId+'", Fecha = "'+Fecha+'", Seguro="'+Seguro+'",MontoPagado="'+MontoPagado+'",Diagnostico="'+Diagnostico+'",Notas="'+Notas+'",Archivo="'+Archivo+'" WHERE PacienteId = "'+PacienteId0+'"'
     
-    query = f'UPDATE Consulta SET PacienteId= ?, Fecha= ?, Seguro= ?, MontoPagado= ?, Diagnostico= ?, Notas= ?, Archivo= ? WHERE PacienteId = ? '
+    query = f'UPDATE Consulta SET PacienteId= ?, Fecha= ?, Motivo= ?, Seguro= ?, MontoPagado= ?, Diagnostico= ?, Notas= ?, Archivo= ? WHERE PacienteId = ? '
     #query = f'UPDATE Consulta SET PacienteId={PacienteId},Fecha={Fecha},Seguro={Seguro},MontoPagado={MontoPagado},Diagnostico={Diagnostico},Notas={Notas},Archivo={Archivo} WHERE PacienteId ={PacienteId0}'
     #query = UPDATE Consulta SET PacienteId=0, Fecha = '23/08/2019', Seguro='546546',MontoPagado=1000,Diagnostico='Algo malo',Notas='wao',Archivo='un archivo' WHERE PacienteId = 0
    # query = f'UPDATE Consulta SET  Seguro= "'+Seguro+'", Diagnostico= "'+Diagnostico+'", Notas= "'+Notas+'", Archivo= "'+Archivo+'"  '
 
     datos.execute(query,Info)
     conexion.commit()
-    return{f'Exito, {Motivo}'}
+    return{f'Datos modificados con exito'}
 
 
 
