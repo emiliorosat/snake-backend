@@ -189,17 +189,87 @@ def Consults(consults:Consulta):
     return{'Consulta agregada'}
 
 
-@app.get("/api/consults/{usuarioId}", tags=["Consult"])
-def FindConsult(usuarioId:int):
+@app.get("/api/consults/{usuarioid}", tags=["Consult"])
+def FindConsult(usuarioid:int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
-    query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE PacienteId = {usuarioId};'
+    query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE PacienteId = {usuarioid};'
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
     
     return(informacion)
+
+@app.post("/api/consults/{idpaciente}", tags=["Consult"])
+def ModifyConsult(consults:Consulta,idpaciente:int):
+    conexion = sqlite3.connect(ruta)
+    datos = conexion.cursor()
+
+    PacienteId0 = idpaciente
+
+    PacienteId = consults.PacienteId
+    Fecha = consults.Fecha 
+    Motivo = consults.Motivo 
+    Seguro = consults.Seguro 
+    MontoPagado = consults.MontoPagado 
+    Diagnostico = consults.Diagnostico 
+    Notas = consults.Notas
+    Archivo = consults.Archivo
+
+   # Info = (MontoPagado)
+    Info = (PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo)
+    #query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE PacienteId = {PacienteId0}'
+    
+    #query = f"UPDATE Consulta SET PacienteId={PacienteId}, Fecha = {Fecha}, Seguro={Seguro},MontoPagado={MontoPagado},Diagnostico={Diagnostico},Notas={Notas},Archivo={Archivo} WHERE PacienteId = {PacienteId0}"
+    
+    #query = f'UPDATE Consulta SET PacienteId= "'+PacienteId+'", Fecha = "'+Fecha+'", Seguro="'+Seguro+'",MontoPagado="'+MontoPagado+'",Diagnostico="'+Diagnostico+'",Notas="'+Notas+'",Archivo="'+Archivo+'" WHERE PacienteId = "'+PacienteId0+'"'
+    
+    query = f'UPDATE Consulta SET PacienteId= ?, Fecha= ?, Seguro= ?, MontoPagado= ?, Diagnostico= ?, Notas= ?, Archivo= ? WHERE PacienteId = ? '
+    #query = f'UPDATE Consulta SET PacienteId={PacienteId},Fecha={Fecha},Seguro={Seguro},MontoPagado={MontoPagado},Diagnostico={Diagnostico},Notas={Notas},Archivo={Archivo} WHERE PacienteId ={PacienteId0}'
+    #query = UPDATE Consulta SET PacienteId=0, Fecha = '23/08/2019', Seguro='546546',MontoPagado=1000,Diagnostico='Algo malo',Notas='wao',Archivo='un archivo' WHERE PacienteId = 0
+   # query = f'UPDATE Consulta SET  Seguro= "'+Seguro+'", Diagnostico= "'+Diagnostico+'", Notas= "'+Notas+'", Archivo= "'+Archivo+'"  '
+
+    datos.execute(query,Info)
+    conexion.commit()
+    return{f'Exito, {Motivo}'}
+
+
+
+
+
+#----------------------Resports-------------------
+@app.get("/api/reports/{fecha}", tags=["Reports"])
+def FindReport(fecha:str):
+    conexion = sqlite3.connect(ruta)
+    datos = conexion.cursor()
+
+    query = f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM `Consulta` WHERE Fecha = "'+fecha+'" '
+    datos.execute(query)
+    conexion.commit()
+    informacion = datos.fetchall()
+
+    return(informacion)
+
+@app.get("/api/reportss/{zodiaco}", tags=["Reports"])
+def FindReportZ(zodiaco:str):
+    conexion = sqlite3.connect(ruta)
+    datos = conexion.cursor()
+    zodiaco = zodiaco
+
+    query = f'SELECT Id, UsuarioId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM `Paciente` WHERE SignoZodiacal = "'+zodiaco+'"'
+    datos.execute(query)
+    conexion.commit()
+    informacion = datos.fetchall()
+    
+
+    return(informacion)
+
+
+
+
+
+
 
 
 
