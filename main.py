@@ -7,7 +7,7 @@ from sqlite3 import Error
 import os
 import secrets
 from typing import List
-from entidades import Usuario,Paciente,Consulta,UsuarioClave
+from entidades import Usuario,Paciente,Consulta,UsuarioClave, Token
 from jwt import encode, decode
 from datetime import datetime
 
@@ -36,7 +36,11 @@ def decodeToken(token: str):
 def encodeToken(user: Usuario):
     #Crea el token
     exp = datetime.now().timestamp() + (60 * 60 * 1000)
-    return encode({"exp": exp, "usuario": user}, jwtSecreto)
+    return encode({"exp": exp, "usuario": {
+        "Id": user.Id,
+        "Nombre": user.Nombre,
+        "Email": user.Email
+    }}, jwtSecreto)
 #--------------------------
 
 #class Token(BaseModel):
@@ -65,10 +69,17 @@ def CreateUser(user:UsuarioClave):
         sql = f'INSERT INTO Usuario(Id, Nombre, Email, Clave) VALUES (NULL,?,?,?)'
         datos.execute(sql,Info)
         conexion.commit()
-        token = encodeToken(Usuario(Id = user.Id,Nombre=user.Nombre,Email = user.Email))
-        return token
+        token = encodeToken(
+            Usuario(
+                Id = user.Id,
+                Nombre=user.Nombre,
+                Email = user.Email
+                )
+            )
+        return Token(access_token = token)
+
     else:
-        return{'Ya existe un correo con ese email'}
+        return{"message" : 'Ya existe un correo con ese email', "status": False}
     
     
   
@@ -89,10 +100,18 @@ def Login(user:UsuarioClave):
     for i in informacion:
         passwordR = checkPassword(password,i[0])
         if passwordR == True:
-                         
-            return(encodeToken(user))
+            token = encodeToken(
+            Usuario(
+                Id = user.Id,
+                Nombre=user.Nombre,
+                Email = user.Email
+                ))
+            return Token(access_token = token)
         else:
-            return('Usuario o Contraseña Incorrecta')
+            return {
+                "status": False,
+                "message": 'Usuario o Contraseña Incorrecta'
+            } 
     
  
 
@@ -121,7 +140,9 @@ def Patients():
     conexion.commit()
     informacion = datos.fetchall()
    
-    return(informacion)
+    return  {
+        "status": True, "data": informacion
+    } 
 
 @app.post("/api/patients", tags=["Patient"])
 def AddPatients(patient:Paciente):
