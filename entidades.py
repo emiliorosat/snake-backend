@@ -6,7 +6,10 @@ class Usuario(BaseModel):
     Id: int
     Nombre: str
     Email: str
-    Clave: str
+    
+
+class UsuarioClave(Usuario):
+    Clave:str
 
 class Alergia(BaseModel):
     Id: int

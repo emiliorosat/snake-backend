@@ -7,7 +7,7 @@ from sqlite3 import Error
 import os
 import secrets
 from typing import List
-from entidades import Usuario,Paciente,Consulta
+from entidades import Usuario,Paciente,Consulta,UsuarioClave
 from jwt import encode, decode
 from datetime import datetime
 
@@ -47,9 +47,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
 
 #--------------------User-----------------------
 @app.post("/api/createUser", tags=["USER"])
-def CreateUser(user:Usuario):
+def CreateUser(user:UsuarioClave):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
+
 
     nombre=user.Nombre
     email=user.Email   
@@ -64,7 +65,8 @@ def CreateUser(user:Usuario):
         sql = f'INSERT INTO Usuario(Id, Nombre, Email, Clave) VALUES (NULL,?,?,?)'
         datos.execute(sql,Info)
         conexion.commit()
-        return{'Welcome'}
+        token = encodeToken(Usuario(Id = user.Id,Nombre=user.Nombre,Email = user.Email))
+        return token
     else:
         return{'Ya existe un correo con ese email'}
     
@@ -73,7 +75,7 @@ def CreateUser(user:Usuario):
     
 
 @app.post("/api/login",tags=["USER"] )
-def Login(user:Usuario):
+def Login(user:UsuarioClave):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
@@ -85,12 +87,12 @@ def Login(user:Usuario):
     conexion.commit()
     informacion = datos.fetchall()
     for i in informacion:
-        passwordR = checkPassword(password,i[0].decode())
+        passwordR = checkPassword(password,i[0])
         if passwordR == True:
                          
-            return('Welcome')
+            return(encodeToken(user))
         else:
-            return('Contraseña Incorrecta')
+            return('Usuario o Contraseña Incorrecta')
     
  
 
@@ -135,7 +137,7 @@ def AddPatients(patient:Paciente):
     Email = patient.Email
     Sexo = patient.Sexo 
     FechaNacimiento = patient.FechaNacimiento 
-    AlergiasId = 5
+    AlergiasId = patient.Alergias.Id
     SignoZodiacal = patient.SignoZodiacal
     
     sql0 =F'SELECT Cedula FROM Paciente WHERE Cedula = "'+ Cedula+'"'
@@ -180,7 +182,7 @@ def ModifyPatient(patient:Paciente,idusuario:int):
     Email = patient.Email
     Sexo = patient.Sexo 
     FechaNacimiento = patient.FechaNacimiento 
-    AlergiasId = 5
+    AlergiasId = patient.Alergias.Id
     SignoZodiacal = patient.SignoZodiacal
 
     Info=(UsuarioId,Cedula,Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal,idusuario0)
