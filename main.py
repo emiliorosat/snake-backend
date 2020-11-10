@@ -135,7 +135,7 @@ def AddPatients(patient:Paciente):
     Email = patient.Email
     Sexo = patient.Sexo 
     FechaNacimiento = patient.FechaNacimiento 
-    AlergiasId = 2
+    AlergiasId = 5
     SignoZodiacal = patient.SignoZodiacal
     
     sql0 =F'SELECT Cedula FROM Paciente WHERE Cedula = "'+ Cedula+'"'
@@ -180,7 +180,7 @@ def ModifyPatient(patient:Paciente,idusuario:int):
     Email = patient.Email
     Sexo = patient.Sexo 
     FechaNacimiento = patient.FechaNacimiento 
-    AlergiasId = 2
+    AlergiasId = 5
     SignoZodiacal = patient.SignoZodiacal
 
     Info=(UsuarioId,Cedula,Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal,idusuario0)
