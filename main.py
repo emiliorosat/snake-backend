@@ -55,11 +55,10 @@ def CreateUser(user:UsuarioClave):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
-
     nombre=user.Nombre
     email=user.Email   
     password = encodePasword(user.Clave)
-   
+
     sql0 =F'SELECT Email FROM Usuario WHERE Email = "'+ email+'"'
     datos.execute(sql0)
     conexion.commit()
@@ -76,7 +75,10 @@ def CreateUser(user:UsuarioClave):
                 Email = user.Email
                 )
             )
-        return Token(access_token = token)
+        return {
+            "status" : True, 
+            "Token" : Token(access_token = token)
+        }
 
     else:
         return{"message" : 'Ya existe un correo con ese email', "status": False}
@@ -103,7 +105,11 @@ def Login(user:UsuarioClave):
                 Nombre=user.Nombre,
                 Email = user.Email
                 ))
-            return Token(access_token = token)
+
+            return {
+                "status" : True, 
+                "Token" : Token(access_token = token)
+            }
         else:
             return {
                 "status": False,
@@ -120,8 +126,10 @@ def Info(Id:int):
     conexion.commit()
     informacion = datos.fetchall()
         
-    return(informacion)
-
+    return {
+        "status" : True,
+        "data" : (informacion)
+    }
 
 
 #-------------------Paciente--------------
@@ -135,8 +143,10 @@ def Patients():
     informacion = datos.fetchall()
 
     return  {
-        "status": True, "data": informacion
+        "status": True, 
+        "data": informacion
     } 
+
 
 @app.post("/api/patients", tags=["Patient"])
 def AddPatients(patient:Paciente):
@@ -164,9 +174,15 @@ def AddPatients(patient:Paciente):
         query = f'INSERT INTO Paciente(UsuarioId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal)VALUES(?,?,?,?,?,?,?,?,?,?,?)'
         datos.execute(query,Info)
         conexion.commit()
-        return{'Paciente Agregado'}
+        return{
+            "status" : True,
+            "mensaje" : 'Paciente Agregado'
+        }
     else:
-        return{'Ya existe un paciente con esa cedula'}
+        return{
+            "status" : False,
+            "mensaje" : 'Ya existe un paciente con esa cedula'
+        }
 
 
 @app.get("/api/patients/{Id}", tags=["Patient"])
@@ -179,7 +195,10 @@ def FindPatient(Id:int):
     conexion.commit()
     informacion = datos.fetchall()
     
-    return(informacion)
+    return{
+        "status" : True
+        "data" : (informacion)
+    }
 
 @app.put("/api/patients/{idusuario}", tags=["Patient"])
 def ModifyPatient(patient:Paciente,idusuario:int):
@@ -204,9 +223,10 @@ def ModifyPatient(patient:Paciente,idusuario:int):
     query = f'UPDATE Paciente SET UsuarioId = ?, Cedula = ?, Foto = ?, Nombre = ?, Apellido = ?, TipoSangre = ?, Email = ?, Sexo = ?, FechaNacimiento = ?, AlergiasId = ?, SignoZodiacal = ? WHERE Id = ? '
     datos.execute(query,Info)
     conexion.commit()
-    return{f'Paciente Modificado, {Cedula}'}
-
-
+    return{
+        "status" : True,
+        f "mensaje" : 'Paciente Modificado, {Cedula}'
+    }
 
 
 #----------------------Consults-----------------------
@@ -228,7 +248,10 @@ def Consults(consults:Consulta):
     query = f'INSERT INTO Consulta(PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo) VALUES (?,?,?,?,?,?,?,?);'
     datos.execute(query,Info)
     conexion.commit()
-    return{'Consulta agregada'}
+    return{
+        "status" : True,
+        "mensaje" : 'Consulta agregada'
+    }
 
 
 @app.get("/api/consults/{usuarioid}", tags=["Consult"])
@@ -241,7 +264,10 @@ def FindConsult(usuarioid:int):
     conexion.commit()
     informacion = datos.fetchall()
     
-    return(informacion)
+    return {
+        "status" : True,
+        "data" : (informacion)
+    }
 
 @app.put("/api/consults/{idpaciente}", tags=["Consult"])
 def ModifyConsult(consults:Consulta,idpaciente:int):
@@ -274,7 +300,10 @@ def ModifyConsult(consults:Consulta,idpaciente:int):
 
     datos.execute(query,Info)
     conexion.commit()
-    return{f'Datos modificados con exito'}
+    return{
+        "status" : True,
+        f "mensaje" : 'Datos modificados con éxito'
+    }
 
 
 
@@ -289,7 +318,10 @@ def FindReport(fecha:str):
     conexion.commit()
     informacion = datos.fetchall()
 
-    return(informacion)
+    return {
+        "status" : True,
+        "data" : (informacion)
+    }
 
 @app.get("/api/reportss/{zodiaco}", tags=["Reports"])
 def FindReportZ(zodiaco:str):
@@ -303,16 +335,7 @@ def FindReportZ(zodiaco:str):
     informacion = datos.fetchall()
     
 
-    return(informacion)
-
-
-
-
-
-
-
-
-
-
-
-
+    return {
+        "status" : True,
+        "data" : (informacion)
+    }
