@@ -165,7 +165,7 @@ def FindPatient(Id:int):
     return(informacion)
 
 @app.put("/api/patients/{idusuario}", tags=["Patient"])
-def ModifyPatient(patient:Paciente,idusuario):
+def ModifyPatient(patient:Paciente,idusuario:int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
@@ -184,10 +184,12 @@ def ModifyPatient(patient:Paciente,idusuario):
     SignoZodiacal = patient.SignoZodiacal
 
     Info=(UsuarioId,Cedula,Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal,idusuario0)
-    query = f'UPDATE Paciente SET UsuarioId = ?, Cedula = ?, Foto = ?, Nombre = ?, Apellido = ?, TipoSangre = ?, Email = ?, Sexo = ?, FechaNacimiento = ?, AlergiasId = ?, SignoZodiacal = ? WHERE UsuarioId = ?'
+    query = f'UPDATE Paciente SET UsuarioId = ?, Cedula = ?, Foto = ?, Nombre = ?, Apellido = ?, TipoSangre = ?, Email = ?, Sexo = ?, FechaNacimiento = ?, AlergiasId = ?, SignoZodiacal = ? WHERE UsuarioId = ? '
     datos.execute(query,Info)
     conexion.commit()
-    return{'Paciente Modificado'}
+    return{f'Paciente Modificado, {Cedula}'}
+
+
 
     
 

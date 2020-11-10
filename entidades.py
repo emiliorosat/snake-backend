@@ -14,7 +14,7 @@ class Alergia(BaseModel):
 
 class Paciente(BaseModel):
     Id: int
-    UsuarioId:str
+    UsuarioId:int
     Cedula: str
     Foto: str
     Nombre: str
