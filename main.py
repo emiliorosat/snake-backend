@@ -77,7 +77,8 @@ def CreateUser(user:UsuarioClave):
             )
         return {
             "status" : True, 
-            "Token" : Token(access_token = token)
+            "Token" : Token(access_token = token),
+            "Usuario" : {"Id" : user.Id, "Nombre" : user.Nombre}
         }
 
     else:
@@ -108,7 +109,8 @@ def Login(user:UsuarioClave):
 
             return {
                 "status" : True, 
-                "Token" : Token(access_token = token)
+                "Token" : Token(access_token = token),
+                "Usuario" : {"Id" : user.Id, "Nombre" : user.Nombre}
             }
         else:
             return {
@@ -196,8 +198,8 @@ def FindPatient(Id:int):
     informacion = datos.fetchall()
     
     return{
-        "status" : True
-        "data" : (informacion)
+        "status" : True,
+        "data" : informacion
     }
 
 @app.put("/api/patients/{idusuario}", tags=["Patient"])
@@ -224,8 +226,8 @@ def ModifyPatient(patient:Paciente,idusuario:int):
     datos.execute(query,Info)
     conexion.commit()
     return{
-        "status" : True,
-        f "mensaje" : 'Paciente Modificado, {Cedula}'
+        f"status" : True,
+        "mensaje" : 'Paciente Modificado, {Cedula}'
     }
 
 
@@ -301,8 +303,8 @@ def ModifyConsult(consults:Consulta,idpaciente:int):
     datos.execute(query,Info)
     conexion.commit()
     return{
-        "status" : True,
-        f "mensaje" : 'Datos modificados con éxito'
+        f"status" : True,
+        "mensaje" : 'Datos modificados con éxito'
     }
 
 
