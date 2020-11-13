@@ -123,7 +123,7 @@ def Info(Id:int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
     
-    query =f'SELECT Id, Nombre, Email, Clave FROM `Usuario` WHERE Id = {Id}'
+    query =f'SELECT Id, Nombre, Email FROM `Usuario` WHERE Id = {Id}'
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
