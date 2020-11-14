@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from bcrypt import hashpw, gensalt, checkpw
 import sqlite3
@@ -13,6 +14,14 @@ from datetime import datetime
 
 app = FastAPI(
     docs_url="/"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
 )
 
 c=os.getcwd()
