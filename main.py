@@ -102,7 +102,7 @@ def Login(user:UsuarioClave):
     email = user.Email
     password = user.Clave
 
-    sql =F'SELECT Clave FROM Usuario WHERE Email = "'+ email+'"'
+    sql =f'SELECT Clave FROM Usuario WHERE Email = "'+ email+'"'
     datos.execute(sql)
     conexion.commit()
     informacion = datos.fetchall()
