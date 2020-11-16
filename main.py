@@ -68,7 +68,7 @@ def CreateUser(user:UsuarioClave):
     email=user.Email   
     password = encodePasword(user.Clave)
 
-    sql0 =F'SELECT Email FROM Usuario WHERE Email = "'+ email+'"'
+    sql0 =f'SELECT Email FROM Usuario WHERE Email = "'+ email+'"'
     datos.execute(sql0)
     conexion.commit()
     informacion = datos.fetchall()
