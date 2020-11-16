@@ -176,7 +176,7 @@ def AddPatients(patient:Paciente):
     AlergiasId = patient.Alergias.Id
     SignoZodiacal = patient.SignoZodiacal
     
-    sql0 =F'SELECT Cedula FROM Paciente WHERE Cedula = "'+ Cedula+'"'
+    sql0 =f'SELECT Cedula FROM Paciente WHERE Cedula = "'+ Cedula+'"'
     datos.execute(sql0)
     conexion.commit()
     informacion = datos.fetchall()
