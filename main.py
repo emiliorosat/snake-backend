@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, openapi,Header,Depends,HTTPException,status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
@@ -11,6 +11,7 @@ from typing import List
 from entidades import Usuario,Paciente,Consulta,UsuarioClave, Token
 from jwt import encode, decode
 from datetime import datetime
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 app = FastAPI(
     docs_url="/"
@@ -23,6 +24,8 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/createUser")
 
 c=os.getcwd()
 ruta=c+'/datos.db'
@@ -77,18 +80,7 @@ def CreateUser(user:UsuarioClave):
         sql = f'INSERT INTO Usuario(Id, Nombre, Email, Clave) VALUES (NULL,?,?,?)'
         datos.execute(sql,Info)
         conexion.commit()
-        token = encodeToken(
-            Usuario(
-                Id = user.Id,
-                Nombre=user.Nombre,
-                Email = user.Email
-                )
-            )
-        return {
-            "status" : True, 
-            "Token" : Token(access_token = token),
-            "Usuario" : {"Id" : user.Id, "Nombre" : user.Nombre}
-        }
+        return Login(user)
 
     else:
         return{"message" : 'Ya existe un correo con ese email', "status": False}
@@ -102,33 +94,55 @@ def Login(user:UsuarioClave):
     email = user.Email
     password = user.Clave
 
-    sql =f'SELECT Clave FROM Usuario WHERE Email = "'+ email+'"'
+    sql =f'SELECT Clave,Id,Nombre,Email FROM Usuario WHERE Email = "'+ email+'"'
     datos.execute(sql)
     conexion.commit()
     informacion = datos.fetchall()
     for i in informacion:
-        passwordR = checkPassword(password,i[0])
+        passwordR = checkPassword(password,i[0].decode())
         if passwordR == True:
             token = encodeToken(
             Usuario(
-                Id = user.Id,
-                Nombre=user.Nombre,
-                Email = user.Email
-                ))
+                Id = i[1],
+                Nombre=i[2],
+                Email = i[3]
+            ))
 
-            return {
+            return{
+                
                 "status" : True, 
                 "Token" : Token(access_token = token),
-                "Usuario" : {"Id" : user.Id, "Nombre" : user.Nombre}
+                "Usuario" : {"Id" : i[1], "Nombre" : i[2]}
             }
         else:
             return {
                 "status": False,
                 "message": 'Usuario o Contraseña Incorrecta'
             } 
+    return "bye"
+
+
+async def get_current_user(token:str = Depends(oauth2_scheme)):
+    user = decodeToken(token)
+    if not user:
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Aunthenticate": "Bearer"},
+        )
+    return user
+
+async def get_current_active_user(current_user: Usuario = Depends(get_current_user)):
+    if current_user["user"]["Disabled"]:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user["user"] 
+
+
+
+
 
 @app.get("/api/info/{Id}", tags=["USER"])
-def Info(Id:int):
+def Info(Id:int = Depends(get_current_active_user)):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
     
