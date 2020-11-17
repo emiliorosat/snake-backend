@@ -71,7 +71,7 @@ def CreateUser(user:UsuarioClave):
     email=user.Email   
     password = encodePasword(user.Clave)
 
-    sql0 =F'SELECT Email FROM Usuario WHERE Email = "'+ email+'"'
+    sql0 =f'SELECT Email FROM Usuario WHERE Email = "'+ email+'"'
     datos.execute(sql0)
     conexion.commit()
     informacion = datos.fetchall()
@@ -190,7 +190,7 @@ def AddPatients(patient:Paciente):
     AlergiasId = patient.Alergias.Id
     SignoZodiacal = patient.SignoZodiacal
     
-    sql0 =F'SELECT Cedula FROM Paciente WHERE Cedula = "'+ Cedula+'"'
+    sql0 =f'SELECT Cedula FROM Paciente WHERE Cedula = "'+ Cedula+'"'
     datos.execute(sql0)
     conexion.commit()
     informacion = datos.fetchall()
