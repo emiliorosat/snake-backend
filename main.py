@@ -159,19 +159,28 @@ def Info(Id:int = Depends(get_current_active_user)):
 
 #-------------------Paciente--------------
 @app.get("/api/patients", tags=["Patient"])
-def Patients():
+def Patients(uid: int):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
-    datos.execute('SELECT Id, UsuarioId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente')
+    datos.execute('SELECT Id, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente WHERE UsuarioId = ' + str(uid))
     conexion.commit()
     informacion = datos.fetchall()
-
+    data = builPatientsDic(informacion)
     return  {
         "status": True, 
-        "data": informacion
+        "data": data
     } 
 
+def builPatientsDic(data):
+    nDic = []
+    for i in data:
+        nDic.append({
+            "Id": i[0], "Cedula": i[1], "Foto": i[2], "Nombre": i[3], "Apellido": i[4],
+            "TipoSangre": i[5], "Email": i[6], "Sexo": i[7], "FechaNacimiento": i[8], 
+            "Alergias": i[9], "SignoZodiacal": i[10]
+        })
+    return nDic
 
 @app.post("/api/patients", tags=["Patient"])
 def AddPatients(patient:Paciente):
@@ -219,10 +228,10 @@ def FindPatient(Id:int):
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
-    
+    data = builPatientsDic(informacion)
     return{
         "status" : True,
-        "data" : informacion
+        "data" : data
     }
 
 @app.put("/api/patients/{idusuario}", tags=["Patient"])
