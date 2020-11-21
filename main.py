@@ -53,6 +53,10 @@ def encodeToken(user: Usuario):
         "Nombre": user.Nombre,
         "Email": user.Email
     }}, jwtSecreto)
+
+def verifyFetch(token):
+    return True
+
 #--------------------------
 
 #class Token(BaseModel):
@@ -159,7 +163,8 @@ def Info(Id:int = Depends(get_current_active_user)):
 
 #-------------------Paciente--------------
 @app.get("/api/patients", tags=["Patient"])
-def Patients(uid: int):
+def Patients(uid: int, token = Depends(verifyFetch)):
+    print(token)
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
