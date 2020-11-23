@@ -1,5 +1,6 @@
 from datetime import date
 from pydantic import BaseModel
+from typing import List
 
 
 class Usuario(BaseModel):
@@ -26,7 +27,7 @@ class Paciente(BaseModel):
     Email: str
     Sexo: str
     FechaNacimiento: date
-    Alergias: [str]
+    Alergias: list[str]
     SignoZodiacal: str
 
 
