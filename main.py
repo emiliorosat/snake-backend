@@ -200,7 +200,7 @@ def AddPatients(patient:Paciente):
     Email = patient.Email
     Sexo = patient.Sexo 
     FechaNacimiento = patient.FechaNacimiento 
-    AlergiasId = patient.Alergias.Id
+    #AlergiasId = patient.Alergias.Id
     SignoZodiacal = patient.SignoZodiacal
     
     sql0 =f'SELECT Cedula FROM Paciente WHERE Cedula = "'+ Cedula+'"'
