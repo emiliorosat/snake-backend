@@ -26,7 +26,7 @@ class Paciente(BaseModel):
     Email: str
     Sexo: str
     FechaNacimiento: date
-    Alergias: Alergia
+    Alergias: [str]
     SignoZodiacal: str
 
 
