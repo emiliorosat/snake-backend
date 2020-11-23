@@ -54,7 +54,7 @@ def encodeToken(user: Usuario):
         "Email": user.Email
     }}, jwtSecreto)
 
-def verifyFetch(token):
+def verifyFetch():
     return True
 
 #--------------------------
