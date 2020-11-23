@@ -163,7 +163,7 @@ def Info(Id:int = Depends(get_current_active_user)):
 
 #-------------------Paciente--------------
 @app.get("/api/patients", tags=["Patient"])
-def Patients(uid: int, token = Depends(verifyFetch)):
+def Patients(uid: int):
     print(token)
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
