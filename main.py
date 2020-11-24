@@ -54,10 +54,22 @@ def encodeToken(user: Usuario):
         "Email": user.Email
     }}, jwtSecreto)
 
+@app.get("/api/prueba/{token}", tags=["Prueba"])
+def tok(token:str):
+    NToken = decodeToken(token)
+    tiempo = NToken['exp']
+    if tiempo > datetime.now().timestamp() :
+        return{
+         "status":True
+        }
+    else:
+        return{
+        "status": False
+        }
+
+
 def verifyFetch():
     return True
-
-#--------------------------
 
 #class Token(BaseModel):
 #    access_token: str
@@ -136,17 +148,17 @@ async def get_current_user(token:str = Depends(oauth2_scheme)):
         )
     return user
 
-async def get_current_active_user(current_user: Usuario = Depends(get_current_user)):
-    if current_user["user"]["Disabled"]:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user["user"] 
+#async def get_current_active_user(current_user: Usuario = Depends(get_current_user)):
+   #if current_user["user"]["Disabled"]:
+    #    raise HTTPException(status_code=400, detail="Inactive user")
+   # return current_user["user"] 
 
 
 
 
 
 @app.get("/api/info/{Id}", tags=["USER"])
-def Info(Id:int = Depends(get_current_active_user)):
+def Info(Id:int ):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
     
@@ -154,11 +166,42 @@ def Info(Id:int = Depends(get_current_active_user)):
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
+
+    for i in informacion:
+        data = {
+            "Id":i[0],
+            "Nombre":i[1],
+            "Email":i[2]
+        }
         
     return {
         "status" : True,
-        "data" : (informacion)
+        "data" : data
     }
+
+
+@app.put("/api/chage/", tags=["USER"])
+def ChangeInfo(user:UsuarioClave):
+    conexion = sqlite3.connect(ruta)
+    datos = conexion.cursor()
+
+    Id = user.Id
+    Nombre = user.Nombre
+    Email = user.Email
+    Clave = encodePasword(user.Clave)
+
+    Info = (Nombre,Email,Clave,Id)
+    query = f'Update Usuario SET Nombre= ?, Email= ?, Clave= ? WHERE Id = ? '
+    datos.execute(query,Info)
+    conexion.commit()
+    
+    return {
+        "status" : True
+    }
+
+
+    
+
 
 
 #-------------------Paciente--------------
@@ -167,22 +210,26 @@ def Patients(uid: int, token = Depends(verifyFetch)):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
-    datos.execute('SELECT Id, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente WHERE UsuarioId = ' + str(uid))
+    
+    
+    datos.execute(f'SELECT Id, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente WHERE UsuarioId = {uid}')
     conexion.commit()
     informacion = datos.fetchall()
     data = builPatientsDic(informacion)
-    return  {
-        "status": True, 
+    
+    return {
+        "status": True,
         "data": data
-    } 
+    }
 
 def builPatientsDic(data):
     nDic = []
     for i in data:
         nDic.append({
-            "Id": i[0], "Cedula": i[1], "Foto": i[2], "Nombre": i[3], "Apellido": i[4],
-            "TipoSangre": i[5], "Email": i[6], "Sexo": i[7], "FechaNacimiento": i[8], 
-            "Alergias": i[9], "SignoZodiacal": i[10]
+            "Id": i[0], "UsuarioId":i[1],"Cedula": i[2], "Foto": i[3], "Nombre": i[4], "Apellido": i[5],
+            "TipoSangre": i[6], "Email": i[7], "Sexo": i[8], "FechaNacimiento": i[9], 
+            "Alergias": i[10], "SignoZodiacal": i[11]
+
         })
     return nDic
 
@@ -200,7 +247,7 @@ def AddPatients(patient:Paciente):
     Email = patient.Email
     Sexo = patient.Sexo 
     FechaNacimiento = patient.FechaNacimiento 
-    #AlergiasId = patient.Alergias.Id
+    AlergiasId = patient.Alergias.Id
     SignoZodiacal = patient.SignoZodiacal
     
     sql0 =f'SELECT Cedula FROM Paciente WHERE Cedula = "'+ Cedula+'"'
@@ -256,6 +303,7 @@ def ModifyPatient(patient:Paciente,idusuario:int):
     FechaNacimiento = patient.FechaNacimiento 
     AlergiasId = patient.Alergias.Id
     SignoZodiacal = patient.SignoZodiacal
+    
 
     Info=(UsuarioId,Cedula,Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal,idusuario0)
     query = f'UPDATE Paciente SET UsuarioId = ?, Cedula = ?, Foto = ?, Nombre = ?, Apellido = ?, TipoSangre = ?, Email = ?, Sexo = ?, FechaNacimiento = ?, AlergiasId = ?, SignoZodiacal = ? WHERE Id = ? '
@@ -301,11 +349,23 @@ def FindConsult(usuarioid:int):
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
-    
-    return {
-        "status" : True,
-        "data" : (informacion)
-    }
+    for i in informacion:
+        data = {
+            "PacienteId" : i[0],
+            "Fecha" : i[1],
+            "Motivo": i[2],
+            "Seguro": i[3],
+            "MontoPagado":i[4],
+            "Diagnostico":i[5],
+            "Notas": i[6],
+            "Archivo": i[7]
+        } 
+        return {
+            "status" : True,
+            "data" : data,
+            
+        }
+
 
 @app.put("/api/consults/{idpaciente}", tags=["Consult"])
 def ModifyConsult(consults:Consulta,idpaciente:int):
@@ -346,22 +406,37 @@ def ModifyConsult(consults:Consulta,idpaciente:int):
 
 
 #----------------------Resports-------------------
-@app.get("/api/reports/{fecha}", tags=["Reports"])
-def FindReport(fecha:str):
+@app.post("/api/reports/{opcion}", tags=["Reports"])
+def FindReport(opcion:int, consult:Consulta,patient:Paciente):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
 
-    query = f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM `Consulta` WHERE Fecha = "'+fecha+'" '
-    datos.execute(query)
-    conexion.commit()
-    informacion = datos.fetchall()
+    if opcion==1 :
+        fecha = str(consult.Fecha)
+        query = f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM `Consulta` WHERE Fecha = "'+fecha+'" '
+        datos.execute(query)
+        conexion.commit()
+        informacion = datos.fetchall()
+        for i in informacion:
+            data = {
+                "PacienteId" : i[0],
+                "Fecha" : i[1],
+                "Motivo": i[2],
+                "Seguro": i[3],
+                "MontoPagado":i[4],
+                "Diagnostico":i[5],
+                "Notas": i[6],
+                "Archivo": i[7]
+            } 
+            return {
+                "status" : True,
+                "data" : data,          
+            }
+    if opcion==2:
+        zodiaco = patient.SignoZodiacal
+        return FindReportZ(zodiaco)
+        
 
-    return {
-        "status" : True,
-        "data" : (informacion)
-    }
-
-@app.get("/api/reportss/{zodiaco}", tags=["Reports"])
 def FindReportZ(zodiaco:str):
     conexion = sqlite3.connect(ruta)
     datos = conexion.cursor()
@@ -371,9 +446,10 @@ def FindReportZ(zodiaco:str):
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
+    data = builPatientsDic(informacion)
     
 
     return {
         "status" : True,
-        "data" : (informacion)
+        "data" : data
     }
