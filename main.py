@@ -166,13 +166,13 @@ def Info(Id:int ):
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
-
+    data = []
     for i in informacion:
-        data = {
+        data.append({
             "Id":i[0],
             "Nombre":i[1],
             "Email":i[2]
-        }
+        })
         
     return {
         "status" : True,
@@ -349,8 +349,9 @@ def FindConsult(usuarioid:int):
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
+    data = []
     for i in informacion:
-        data = {
+        data.append({
             "PacienteId" : i[0],
             "Fecha" : i[1],
             "Motivo": i[2],
@@ -359,12 +360,12 @@ def FindConsult(usuarioid:int):
             "Diagnostico":i[5],
             "Notas": i[6],
             "Archivo": i[7]
-        } 
-        return {
-            "status" : True,
-            "data" : data,
-            
-        }
+        }) 
+    return {
+        "status" : True,
+        "data" : data,
+        
+    }
 
 
 @app.put("/api/consults/{idpaciente}", tags=["Consult"])
@@ -417,8 +418,9 @@ def FindReport(opcion:int, consult:Consulta,patient:Paciente):
         datos.execute(query)
         conexion.commit()
         informacion = datos.fetchall()
+        data = []
         for i in informacion:
-            data = {
+            data.append({
                 "PacienteId" : i[0],
                 "Fecha" : i[1],
                 "Motivo": i[2],
@@ -427,11 +429,11 @@ def FindReport(opcion:int, consult:Consulta,patient:Paciente):
                 "Diagnostico":i[5],
                 "Notas": i[6],
                 "Archivo": i[7]
-            } 
-            return {
-                "status" : True,
-                "data" : data,          
-            }
+            }) 
+        return {
+            "status" : True,
+            "data" : data,          
+        }
     if opcion==2:
         zodiaco = patient.SignoZodiacal
         return FindReportZ(zodiaco)
