@@ -5,7 +5,7 @@ from typing import Optional
 
 from usuario import userInfo, createNewUser, loginUser, updateUser
 from pacientes import getAllPatients, AddNewPatient, FindPatientInDb, updatePatient
-from consultas import addConsults, FindConsultById, updateConsult
+from consultas import addConsults, FindConsultById, updateConsult, FindAllConsults
 from reportes import FindAReport
 from entidades import Usuario,Paciente,Consulta,UsuarioClave, Token
 
@@ -34,7 +34,7 @@ def CreateUser(user:UsuarioClave):
 def Login(user:UsuarioClave):
     return loginUser(user)
 
-@app.put("/api/users/", tags=["USER"])
+@app.put("/api/users", tags=["USER"])
 def ChangeInfo(user:UsuarioClave, token: str = Header(None)):
 
     return updateUser(user)
@@ -95,10 +95,19 @@ def Consults(consults:Consulta, uid: int, token: str = Header(None)):
             "status": False, "message": "Usuario No Valido"
         }
 
-@app.get("/api/consults/", tags=["Consult"])
+@app.get("/api/consults", tags=["Consult"])
 def FindConsult(uid: int, token: str = Header(None)):
     if tokenTime(token, uid):
-        return FindConsultById(uid)
+        return FindAllConsults(uid)
+    else: 
+        return {
+            "status": False, "message": "Usuario No Valido"
+        }
+
+@app.get("/api/consults/{cid}", tags=["Consult"])
+def FindOneConsultById(cid: int, uid: int, token: str = Header(None)):
+    if tokenTime(token, uid):
+        return FindConsultById(cid)
     else: 
         return {
             "status": False, "message": "Usuario No Valido"
@@ -114,8 +123,8 @@ def ModifyConsult(consults:Consulta, paciente:int, uid: int, token: str = Header
         }
 
 #----------------------Resports-------------------
-@app.get("/api/reports/", tags=["Reports"])
-def FindReport(opcion:int, uid: int, fecha: Optional[date], token: str = Header(None)):
+@app.get("/api/reports", tags=["Reports"])
+def FindReport(opcion:int, uid: int, fecha: Optional[date] = None, token: str = Header(None)):
     if tokenTime(token, uid):
         return FindAReport(opcion, uid, fecha)
     else: 

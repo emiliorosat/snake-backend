@@ -26,7 +26,7 @@ def addConsults(consults:Consulta):
     }
 
 
-def FindConsultById(usuarioid:int):
+def FindAllConsults(usuarioid:int):
     conexion = db()
     datos = conexion.cursor()
 
@@ -52,6 +52,9 @@ def FindConsultById(usuarioid:int):
         
     }
 
+def FindConsultById(cid: int):
+    conexion = db() #busca una consulta por el id de la consulta
+    return "please Complete this"
 
 def updateConsult(consults:Consulta,idpaciente:int):
     conexion = db()
