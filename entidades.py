@@ -1,10 +1,10 @@
 from datetime import date
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class Usuario(BaseModel):
-    Id: int
+    Id: Optional[int]
     Nombre: str
     Email: str
     

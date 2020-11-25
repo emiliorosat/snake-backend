@@ -1,5 +1,14 @@
 -- SQLite
-CREATE TABLE if NOT EXISTS [Paciente] (
+
+CREATE TABLE IF NOT EXISTS Usuario (
+    Id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    Nombre VARCHAR(50) NOT NULL,
+    Email VARCHAR(50) NOT NULL,
+    Clave VARCHAR(200) NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS [Paciente] (
 [Id] INTEGER  NOT NULL PRIMARY KEY AUTOINCREMENT,
 [UsuarioId] INTEGER  NULL,
 [Cedula] VARCHAR(15)  NULL,
@@ -10,19 +19,23 @@ CREATE TABLE if NOT EXISTS [Paciente] (
 [Email] varCHAR(50)  NULL,
 [Sexo] VARCHAR(1)  NULL,
 [FechaNacimiento] DATE  NULL,
-[AlergiasId] INTEGER  NULL,
-[SignoZodiacal] VARCHAR(20)  NULL
+[AlergiasId] TEXT  NULL,
+[SignoZodiacal] VARCHAR(20)  NULL,
+CONSTRAINT fk_usuario FOREIGN KEY ( UsuarioId ) REFERENCES Usuario (Id)
 );
 
 CREATE TABLE if NOT EXISTS [Consulta] (
 [PacienteId] INTEGER  NULL,
+[UsuarioId] INTEGER  NULL,
 [Fecha] DATE  NULL,
 [Motivo] TEXT  NULL,
 [Seguro] VARCHAR(100)  NULL,
 [MontoPagado] FLOAT  NULL,
 [Diagnostico] TEXT  NULL,
 [Notas] TEXT  NULL,
-[Archivo] VARCHAR(200)  NULL
+[Archivo] VARCHAR(200)  NULL,
+CONSTRAINT fk_usuario FOREIGN KEY ( UsuarioId ) REFERENCES Usuario (Id)
+CONSTRAINT fk_paciente FOREIGN KEY ( PacienteId ) REFERENCES Paciente (Id)
 );
 
 CREATE TABLE if NOT EXISTS  [Alergia] (
