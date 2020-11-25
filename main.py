@@ -12,6 +12,7 @@ from entidades import Usuario,Paciente,Consulta,UsuarioClave, Token
 from jwt import encode, decode
 from datetime import datetime
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from zodiaco import ObrenerSigno
 
 app = FastAPI(
     docs_url="/"
@@ -200,8 +201,8 @@ def AddPatients(patient:Paciente):
     Email = patient.Email
     Sexo = patient.Sexo 
     FechaNacimiento = patient.FechaNacimiento 
-    #AlergiasId = patient.Alergias.Id
-    SignoZodiacal = patient.SignoZodiacal
+    AlergiasId = 1 #patient.Alergias.Id
+    SignoZodiacal = ObrenerSigno(patient.FechaNacimiento)
     
     sql0 =f'SELECT Cedula FROM Paciente WHERE Cedula = "'+ Cedula+'"'
     datos.execute(sql0)
