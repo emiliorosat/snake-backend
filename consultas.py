@@ -3,7 +3,7 @@ from entidades import Consulta
 
 
 #----------------------Consults-----------------------
-def addConsults(consults:Consulta):
+def addConsults(consults:Consulta, uid: int):
     conexion = db()
     datos = conexion.cursor()
 
@@ -16,8 +16,8 @@ def addConsults(consults:Consulta):
     Notas = consults.Notas
     Archivo = consults.Archivo
 
-    Info = (PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo)
-    query = f'INSERT INTO Consulta(PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo) VALUES (?,?,?,?,?,?,?,?);'
+    Info = (PacienteId, uid, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo)
+    query = f'INSERT INTO Consulta(PacienteId, UsuarioId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo) VALUES (?,?,?,?,?,?,?,?,?);'
     datos.execute(query,Info)
     conexion.commit()
     return{
@@ -56,6 +56,8 @@ def FindConsultById(cid: int):
     conexion = db() #busca una consulta por el id de la consulta
     return "please Complete this"
 
+
+
 def updateConsult(consults:Consulta,idpaciente:int):
     conexion = db()
     datos = conexion.cursor()
@@ -70,16 +72,16 @@ def updateConsult(consults:Consulta,idpaciente:int):
     Diagnostico = consults.Diagnostico 
     Notas = consults.Notas
     Archivo = consults.Archivo
+    Info = (PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo,PacienteId0)
+    query = f'UPDATE Consulta SET PacienteId= ?, Fecha= ?, Motivo= ?, Seguro= ?, MontoPagado= ?, Diagnostico= ?, Notas= ?, Archivo= ? WHERE PacienteId = ? '
 
     # Info = (MontoPagado)
-    Info = (PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo,PacienteId0)
     #query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE PacienteId = {PacienteId0}'
     
     #query = f"UPDATE Consulta SET PacienteId={PacienteId}, Fecha = {Fecha}, Seguro={Seguro},MontoPagado={MontoPagado},Diagnostico={Diagnostico},Notas={Notas},Archivo={Archivo} WHERE PacienteId = {PacienteId0}"
     
     #query = f'UPDATE Consulta SET PacienteId= "'+PacienteId+'", Fecha = "'+Fecha+'", Seguro="'+Seguro+'",MontoPagado="'+MontoPagado+'",Diagnostico="'+Diagnostico+'",Notas="'+Notas+'",Archivo="'+Archivo+'" WHERE PacienteId = "'+PacienteId0+'"'
     
-    query = f'UPDATE Consulta SET PacienteId= ?, Fecha= ?, Motivo= ?, Seguro= ?, MontoPagado= ?, Diagnostico= ?, Notas= ?, Archivo= ? WHERE PacienteId = ? '
     #query = f'UPDATE Consulta SET PacienteId={PacienteId},Fecha={Fecha},Seguro={Seguro},MontoPagado={MontoPagado},Diagnostico={Diagnostico},Notas={Notas},Archivo={Archivo} WHERE PacienteId ={PacienteId0}'
     #query = UPDATE Consulta SET PacienteId=0, Fecha = '23/08/2019', Seguro='546546',MontoPagado=1000,Diagnostico='Algo malo',Notas='wao',Archivo='un archivo' WHERE PacienteId = 0
     # query = f'UPDATE Consulta SET  Seguro= "'+Seguro+'", Diagnostico= "'+Diagnostico+'", Notas= "'+Notas+'", Archivo= "'+Archivo+'"  '

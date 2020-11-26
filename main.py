@@ -36,7 +36,6 @@ def Login(user:UsuarioClave):
 
 @app.put("/api/users", tags=["USER"])
 def ChangeInfo(user:UsuarioClave, token: str = Header(None)):
-
     return updateUser(user)
 
 @app.get("/api/users/{Id}", tags=["USER"])
@@ -89,7 +88,7 @@ def ModifyPatient(patient:Paciente,uid: int, token: str = Header(None)):
 @app.post("/api/consults", tags=["Consult"])
 def Consults(consults:Consulta, uid: int, token: str = Header(None)):
     if tokenTime(token, uid):
-        return addConsults(consults)
+        return addConsults(consults, uid)
     else: 
         return {
             "status": False, "message": "Usuario No Valido"

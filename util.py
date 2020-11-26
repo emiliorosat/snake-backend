@@ -33,6 +33,4 @@ def tokenTime(token:str, uid: int):
     if tiempo > datetime.now().timestamp() :
         return True if ( NToken["usuario"]["Id"] == uid) else False
     else:
-        return{
-        "status": False
-        }
+        return False
