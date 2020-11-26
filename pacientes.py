@@ -8,7 +8,7 @@ def getAllPatients(uid: int):
     conexion = db()
     datos = conexion.cursor()
 
-    datos.execute(f'SELECT Id, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente WHERE UsuarioId = {uid}')
+    datos.execute(f'SELECT Id, UsuarioId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal FROM Paciente WHERE UsuarioId = {uid}')
     conexion.commit()
     informacion = datos.fetchall()
     data = builPatientsDic(informacion)

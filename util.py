@@ -30,7 +30,9 @@ def encodeToken(user: Usuario):
 def tokenTime(token:str, uid: int):
     NToken = decodeToken(token)
     tiempo = NToken['exp']
-    if tiempo > datetime.now().timestamp() :
+    restante = tiempo - datetime.now().timestamp()
+
+    if restante > 0 :
         return True if ( NToken["usuario"]["Id"] == uid) else False
     else:
         return False

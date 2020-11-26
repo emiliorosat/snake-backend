@@ -60,7 +60,10 @@ def loginUser(user:UsuarioClave):
                 "status": False,
                 "message": 'Usuario o Contraseña Incorrecta'
             } 
-    return "bye"
+    return {
+        "status": False,
+        "message": 'Usuario No Existe'
+    }
 
 """
 async def get_current_user(token:str = Depends(oauth2_scheme)):
