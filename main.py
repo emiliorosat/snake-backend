@@ -106,7 +106,7 @@ def FindConsult(uid: int, token: str = Header(None)):
 @app.get("/api/consults/{cid}", tags=["Consult"])
 def FindOneConsultById(cid: int, uid: int, token: str = Header(None)):
     if tokenTime(token, uid):
-        return FindConsultById(cid)
+        return FindConsultById(cid, uid)
     else: 
         return {
             "status": False, "message": "Usuario No Valido"

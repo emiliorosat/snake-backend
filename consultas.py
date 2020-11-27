@@ -30,7 +30,7 @@ def FindAllConsults(usuarioid:int):
     conexion = db()
     datos = conexion.cursor()
 
-    query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE PacienteId = {usuarioid};'
+    query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE UsuarioId = {usuarioid};'
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
@@ -52,9 +52,30 @@ def FindAllConsults(usuarioid:int):
         
     }
 
-def FindConsultById(cid: int):
-    conexion = db() #busca una consulta por el id de la consulta
-    return "please Complete this"
+def FindConsultById(cid: int, uid: int):
+    conexion = db()
+    datos = conexion.cursor()
+    query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE UsuarioId = {uid} AND PacienteId={cid};'
+    datos.execute(query)
+    conexion.commit()
+    informacion = datos.fetchall()
+    data = []
+    for i in informacion:
+        data.append({
+            "PacienteId" : i[0],
+            "Fecha" : i[1],
+            "Motivo": i[2],
+            "Seguro": i[3],
+            "MontoPagado":i[4],
+            "Diagnostico":i[5],
+            "Notas": i[6],
+            "Archivo": i[7]
+        }) 
+    return {
+        "status" : True,
+        "data" : data,
+        
+    }
 
 
 
