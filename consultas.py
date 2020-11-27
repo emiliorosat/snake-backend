@@ -30,7 +30,7 @@ def FindAllConsults(usuarioid:int):
     conexion = db()
     datos = conexion.cursor()
 
-    query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE UsuarioId = {usuarioid};'
+    query =f'SELECT c.PacienteId, c.Fecha, c.Motivo, c.Seguro, c.MontoPagado, c.Diagnostico, c.Notas, c.Archivo, p.Nombre, p.Apellido FROM Consulta c INNER JOIN Paciente p ON c.PacienteId = p.Id WHERE c.UsuarioId = {usuarioid};'
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
@@ -44,7 +44,9 @@ def FindAllConsults(usuarioid:int):
             "MontoPagado":i[4],
             "Diagnostico":i[5],
             "Notas": i[6],
-            "Archivo": i[7]
+            "Archivo": i[7],
+            "Nombre": i[8],
+            "Apellido": i[9],
         }) 
     return {
         "status" : True,

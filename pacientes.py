@@ -12,6 +12,7 @@ def getAllPatients(uid: int):
     conexion.commit()
     informacion = datos.fetchall()
     data = builPatientsDic(informacion)
+    conexion.close()
     
     return {
         "status": True,
@@ -54,11 +55,13 @@ def AddNewPatient(patient:Paciente):
         query = f'INSERT INTO Paciente(UsuarioId, Cedula, Foto, Nombre, Apellido, TipoSangre, Email, Sexo, FechaNacimiento, AlergiasId, SignoZodiacal)VALUES(?,?,?,?,?,?,?,?,?,?,?)'
         datos.execute(query,Info)
         conexion.commit()
+        conexion.close()
         return{
             "status" : True,
             "mensaje" : 'Paciente Agregado'
         }
     else:
+        conexion.close()
         return{
             "status" : False,
             "mensaje" : 'Ya existe un paciente con esa cedula'
@@ -74,6 +77,7 @@ def FindPatientInDb(Id:int):
     conexion.commit()
     informacion = datos.fetchall()
     data = builPatientsDic(informacion)
+    conexion.close()
     return{
         "status" : True,
         "data" : data
@@ -102,6 +106,7 @@ def updatePatient(patient:Paciente,idusuario:int):
     query = f'UPDATE Paciente SET UsuarioId = ?, Cedula = ?, Foto = ?, Nombre = ?, Apellido = ?, TipoSangre = ?, Email = ?, Sexo = ?, FechaNacimiento = ?, AlergiasId = ?, SignoZodiacal = ? WHERE Id = ? '
     datos.execute(query,Info)
     conexion.commit()
+    conexion.close()
     return{
         f"status" : True,
         "mensaje" : 'Paciente Modificado, {Cedula}'

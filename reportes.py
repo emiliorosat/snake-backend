@@ -17,17 +17,49 @@ opciones:
 
 #----------------------Resports-------------------
 def FindAReport(opcion:int, uid: int, fecha: Optional[date]):
+    data = []
     if opcion == 1:
-        sql = ""
+        sql = f"SELECT p.Id, p.Nombre, p.Apellido, p.Cedula, p.Email, p.Foto FROM Consulta c INNER JOIN Paciente p ON c.PacienteId = p.Id WHERE c.Fecha = '{fecha}' AND c.UsuarioId = {uid};"
+        query = reqDB(sql)
+        for i in query:
+            data.append({
+                "Id": i[0], "Nombre": i[1], "Apellido": i[2], "Cedula": i[3], "Email": i[4], "Foto": i[5]
+            })
+
     elif opcion == 2:
-        sql= ""
+        sql= f"SELECT Id, Nombre, Apellido, Cedula, SignoZodiacal FROM Paciente WHERE UsuarioId = {uid};"
+        query = reqDB(sql)
+        for i in query:
+            data.append({
+                "Id": i[0], "Nombre": i[1], "Apellido": i[2], "Cedula": i[3], "SignoZodiacal": i[4]
+            })
     elif opcion == 3:
-        sql = ""
+        sql = f"SELECT  p.Id, p.Nombre, p.Apellido, p.Cedula, count( * ) Total FROM Consulta c INNER JOIN Paciente p ON c.PacienteId = p.Id WHERE c.UsuarioId = {uid} GROUP BY p.Id"
+        query = reqDB(sql)
+        for i in query:
+            data.append({
+                "Id": i[0], "Nombre": i[1], "Apellido": i[2], "Cedula": i[3], "Total": i[4]
+            })
     else:
-        error = "Opcion Incorrecta"
+        return {
+            "status": False, "message":"Opcion Incorrecta"
+        }
+
+    
+
+    return {
+        "status": True, "data": data
+    }
 
 
-
+def reqDB(sql: str):
+    conexion = db()
+    datos = conexion.cursor()
+    datos.execute(sql)
+    conexion.commit()
+    query = datos.fetchall()
+    conexion.close()
+    return query
 
 
 
