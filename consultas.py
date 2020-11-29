@@ -47,6 +47,7 @@ def FindAllConsults(usuarioid:int):
             "Archivo": i[7],
             "Nombre": i[8],
             "Apellido": i[9],
+            "Id": i[10],
         }) 
     return {
         "status" : True,
