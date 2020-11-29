@@ -98,7 +98,7 @@ def updatePatient(patient:Paciente,idusuario:int):
     Email = patient.Email
     Sexo = patient.Sexo 
     FechaNacimiento = patient.FechaNacimiento 
-    AlergiasId = patient.Alergias.Id
+    AlergiasId = ",".join( patient.Alergias )
     SignoZodiacal = patient.SignoZodiacal
     
 
