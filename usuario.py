@@ -22,9 +22,11 @@ def createNewUser(user:UsuarioClave):
         sql = f'INSERT INTO Usuario(Id, Nombre, Email, Clave) VALUES (NULL,?,?,?)'
         datos.execute(sql,Info)
         conexion.commit()
+        conexion.close()
         return loginUser(user)
 
     else:
+        conexion.close()
         return{"message" : 'Ya existe un correo con ese email', "status": False}
 
 
@@ -39,6 +41,7 @@ def loginUser(user:UsuarioClave):
     datos.execute(sql)
     conexion.commit()
     informacion = datos.fetchall()
+    conexion.close()
     for i in informacion:
         passwordR = checkPassword(password,i[0].decode())
         if passwordR == True:
@@ -65,21 +68,6 @@ def loginUser(user:UsuarioClave):
         "message": 'Usuario No Existe'
     }
 
-"""
-async def get_current_user(token:str = Depends(oauth2_scheme)):
-    user = decodeToken(token)
-    if not user:
-        raise HTTPException(
-            status_code = status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Aunthenticate": "Bearer"},
-        )
-    return user
-"""
-#async def get_current_active_user(current_user: Usuario = Depends(get_current_user)):
-   #if current_user["user"]["Disabled"]:
-    #    raise HTTPException(status_code=400, detail="Inactive user")
-   # return current_user["user"] 
 
 def userInfo(Id: int):
     conexion = db()
@@ -90,6 +78,7 @@ def userInfo(Id: int):
     conexion.commit()
     informacion = datos.fetchall()
     data = []
+    conexion.close()
     for i in informacion:
         data.append({
             "Id":i[0],
@@ -110,12 +99,22 @@ def updateUser(user:UsuarioClave):
     Id = user.Id
     Nombre = user.Nombre
     Email = user.Email
-    Clave = encodePasword(user.Clave)
 
-    Info = (Nombre,Email,Clave,Id)
-    query = f'Update Usuario SET Nombre= ?, Email= ?, Clave= ? WHERE Id = ? '
+    if user.Clave != "" and user.Email != "":
+        Clave = encodePasword(user.Clave)
+        Info = (Nombre,Email,Clave,Id)
+        query = f'Update Usuario SET Nombre= ?, Email= ?, Clave= ? WHERE Id = ? '
+    elif user.Clave != "":
+        Clave = encodePasword(user.Clave)
+        Info = (Nombre,Clave,Id)
+        query = f'Update Usuario SET Nombre= ?, Clave= ? WHERE Id = ? '
+    elif user.Email != "":
+        Info = (Nombre,Email,Id)
+        query = f'Update Usuario SET Nombre= ?, Email= ? WHERE Id = ? '
+
     datos.execute(query,Info)
     conexion.commit()
+    conexion.close()
     
     return {
         "status" : True
