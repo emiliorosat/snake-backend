@@ -58,7 +58,7 @@ def FindAllConsults(usuarioid:int):
 def FindConsultById(cid: int, uid: int):
     conexion = db()
     datos = conexion.cursor()
-    query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE UsuarioId = {uid} AND PacienteId={cid};'
+    query =f'SELECT PacienteId, Fecha, Motivo, Seguro, MontoPagado, Diagnostico, Notas, Archivo FROM Consulta WHERE UsuarioId = {uid} AND Id={cid};'
     datos.execute(query)
     conexion.commit()
     informacion = datos.fetchall()
